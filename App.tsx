@@ -5,6 +5,7 @@ import MainNavigator from './src/navigator/MainNavigator';
 import TryCodeScreen from './src/screens/TryCodeScreen';
 import NoteListScreen from './src/screens/NoteListScreen';
 const App = () => {
+  console.log('tes2')
   return (
     <SafeAreaProvider>
       <MainNavigator/>
