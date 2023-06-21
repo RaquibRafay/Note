@@ -66,7 +66,7 @@ const EditNoteScreen = (props) => {
 
 
     return (
-        <View style={styles.mainContainer}>
+        <View>
             <HeaderComponent
                 title="Edit"
                 onPress={() => saveNote(

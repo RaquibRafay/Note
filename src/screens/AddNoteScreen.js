@@ -19,12 +19,12 @@ const AddNoteScreen = (props) => {
         if (newNote !== '') {
             realm.write(() => {
                 realm.create("Note", {
-                    id: dataLength === 0 ? 1 : lastIdFromrealm + 1,
+                    id: dataLength === 0 ? 1 : lastIdFromRealm + 1,
                     date: new Date().toISOString(),
                     note: newNote
                 });
             });
-            Alert.alert(
+            alert(
                 "Success",
                 "Successfully save your note!",
                 [
@@ -58,13 +58,22 @@ const AddNoteScreen = (props) => {
     return (
         <View style={styles.mainContainer}>
             <HeaderComponent
-                title="create"
+                title="Create"
                 onPress={() => saveNote(tempNote)}
             />
-            <MainComponent
+            {/* <MainComponent
                 date={getCurrentDate()}
                 onChangeText={(text) => setTempNote(text)}
+            /> */}
+            <View style={styles.mainContainer} >
+            <Text style={styles.date}>{getCurrentDate()}</Text>
+            <TextInput
+                multiline
+                placeholder="Write here"
+                style={styles.input}
+                onChangeText={(text) => setTempNote(text)}
             />
+        </View>
         </View>
     )
 };

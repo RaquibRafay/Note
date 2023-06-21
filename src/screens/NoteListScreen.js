@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import realm from '../../store/realm';
 import { FlatList } from 'react-native';
 import { TextInput } from 'react-native';
+import { CheckBox } from 'react-native-elements';
 
 
 
@@ -17,7 +18,11 @@ const NoteListScreen = (props) => {
         setData(realm.objects('Note'));
         const notes = data
         const final = [...notes].sort((a, b) => b.id - a.id)
-        setFinal(final)
+        const newData = final.map((item) => {
+            item.checkedStatus = false
+            return item
+        })
+        setFinal(newData)
         setSearchText('focus');
     }, []);
 
@@ -47,6 +52,16 @@ const NoteListScreen = (props) => {
             });
         setData(searchedData);
         setSearchText(value);
+    };
+
+    const setCheckBox = (id, status) => {
+        const newData = final.map((item) => {
+            if (item.id === id) {
+                item.checkedStatus = !status
+            }
+            return item
+        })
+        setData(newData)
     };
 
     return (
@@ -82,6 +97,12 @@ const NoteListScreen = (props) => {
                                     {dateFormat(item.date)}
                                 </Text>
                             </TouchableOpacity>
+                            <CheckBox
+                                size={20}
+                                containerStyle={styles.checkBox}
+                                onPress={() => setCheckBox(item.id, item.checkedStatus)}
+                                checked={item.checkedStatus}
+                            />
                         </View>
                     )
                 }}
@@ -113,7 +134,7 @@ const NoteListScreen = (props) => {
             < View style={styles.buttonContainer} >
                 <TouchableOpacity
                     style={styles.addButton}
-                    onPress={() => navigation.navigate('AddNote')}
+                    onPress={() => navigation.navigate('CreateNote')}
                 >
                     <Icon
                         name="plus"
@@ -202,5 +223,9 @@ const styles = StyleSheet.create({
     noItem: {
         alignItems: 'center',
         margin: 8
+    },
+    checkBox: {
+        paddingRight: 0,
+        paddingLeft: 0
     }
 });
