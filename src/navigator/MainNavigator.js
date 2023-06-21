@@ -10,7 +10,7 @@ const MainNavigator = () => {
     console.log('tes')
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="CreateNote">
+            <Stack.Navigator initialRouteName="NoteList">
                 <Stack.Screen
                     name="NoteList"
                     component={NoteListScreen}

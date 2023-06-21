@@ -50,6 +50,7 @@ const NoteListScreen = (props) => {
     };
 
     return (
+
         <View style={styles.mainContainer}>
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     noItem: {
-        alignItems:'center',
-        margin:8
+        alignItems: 'center',
+        margin: 8
     }
 });
