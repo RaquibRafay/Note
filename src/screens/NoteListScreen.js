@@ -3,18 +3,23 @@ import { Icon } from 'react-native-elements';
 import { useState, useEffect } from 'react';
 import realm from '../../store/realm';
 import { FlatList } from 'react-native';
+import { TextInput } from 'react-native';
+
+
 
 const NoteListScreen = (props) => {
     const { navigation } = props;
     const [data, setData] = useState([]);
     const [final, setFinal] = useState([])
+    const [searchText, setSearchText] = useState('');
 
-    // useEffect(() => {
-    //     setData(realm.objects('Note'));
-    //     const notes = data
-    //     const final = [...notes].sort((a, b) => b.id - a.id)
-    //     setFinal(final)
-    // }, []);
+    useEffect(() => {
+        setData(realm.objects('Note'));
+        const notes = data
+        const final = [...notes].sort((a, b) => b.id - a.id)
+        setFinal(final)
+        setSearchText('focus');
+    }, []);
 
     const dateFormat = (date) => {
         const months = [
@@ -31,58 +36,98 @@ const NoteListScreen = (props) => {
         return months[monthOnly] + ' ' + dateOnly + ', ' + yearOnly;
     };
 
+    const searchData = (value) => {
+        const dataFromDatabase = realm.objects('Note').
+            sorted('date', true);
+        const searchedData = dataFromDatabase.
+            filter((item) => {
+                const itemData = item.note.toLowerCase();
+                const valueData = value.toLowerCase()
+                return itemData.indexOf(valueData) > -1;
+            });
+        setData(searchedData);
+        setSearchText(value);
+    };
+
     return (
-//         <View style={styles.mainContainer}>
-//             <View style={styles.headerContainer}>
-//                 <Text style={styles.headerTitle}>
-//                     Notes
-//                 </Text>
-//             </View>
-//             <FlatList
-//                 contentContainerStyle={styles.flatListContainer}
-//                 data={final}
-//                 keyExtractor={(item) => item.id}
-//                 showsVerticalScrollIndicator={false}
-//                 renderItem={({ item }) => {
-//                     return (
-//                         <View style={styles.mainDataContainer}>
-//                             <TouchableOpacity
-//                                 style={styles.noteButton}
-//                                 onPress={() => navigation.navigate('EditNote',{
-//                                     id: item.id,
-//                                 }
-//                                 )}
-//                             >
-//                             <View style={styles.noteContainer}>
-//                                 <Text style={styles.noteText}>
-//                                     {item.note}
-//                                 </Text>
-//                             </View>
-//                             <Text style={styles.dateText}>
-//                                 {dateFormat(item.date)}
-//                             </Text>
-//                         </TouchableOpacity>
-//                         </View>
-//     )
-// }}
-// />
-//     < View style = { styles.buttonContainer } >
-//         <TouchableOpacity
-//             style={styles.addButton}
-//             onPress={() => navigation.navigate('AddNote')}
-//         >
-//             <Icon
-//                 name="plus"
-//                 type="antdesign"
-//                 size={24}
-//                 color="white"
-//             />
-//         </TouchableOpacity>
-//             </View >
-//         </View >
-<Text>p</Text>
+        <View style={styles.mainContainer}>
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerTitle}>
+                    Notes
+                </Text>
+            </View>
+            <FlatList
+                contentContainerStyle={styles.flatListContainer}
+                data={final}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps={'handled'}
+                renderItem={({ item }) => {
+                    return (
+                        <View style={styles.mainDataContainer}>
+                            <TouchableOpacity
+                                style={styles.noteButton}
+                                onPress={() => navigation.navigate('EditNote', {
+                                    id: item.id,
+                                }
+                                )}
+                            >
+                                <View style={styles.noteContainer}>
+                                    <Text style={styles.noteText}>
+                                        {item.note}
+                                    </Text>
+                                </View>
+                                <Text style={styles.dateText}>
+                                    {dateFormat(item.date)}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    )
+                }}
+                ListHeaderComponent={
+                    <View style={styles.searchBox}>
+                        <Icon
+                            name="search"
+                            type="font-awesome"
+                            size={18}
+                            style={styles.searchIcon}
+                            color="grey"
+                        />
+                        <TextInput
+                            placeholder='Search here'
+                            style={styles.searchInput}
+                            onChangeText={(text) => searchData(text)}
+                            value={searchText}
+                        />
+                    </View>
+                }
+                ListEmptyComponent={
+                    <View style={styles.noItem}>
+                        <Text>
+                            No items.
+                        </Text>
+                    </View>
+                }
+            />
+            < View style={styles.buttonContainer} >
+                <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => navigation.navigate('AddNote')}
+                >
+                    <Icon
+                        name="plus"
+                        type="antdesign"
+                        size={24}
+                        color="white"
+                    />
+                </TouchableOpacity>
+            </View >
+        </View >
+
     )
 };
+
+export default NoteListScreen;
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -135,7 +180,26 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 12
+    },
+    searchBox: {
+        flexDirection: 'row',
+        borderWidth: 1,
+        margin: 8,
+        borderRadius: 10,
+        flex: 1,
+        alignItems: 'center'
+    },
+    searchIcon: {
+        padding: 8,
+        paddingRight: 0
+    },
+    searchInput: {
+        height: 30,
+        padding: 8,
+        flex: 1
+    },
+    noItem: {
+        alignItems:'center',
+        margin:8
     }
 });
-
-export default NoteListScreen;
