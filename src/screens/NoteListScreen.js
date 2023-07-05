@@ -13,6 +13,7 @@ const NoteListScreen = (props) => {
     const [data, setData] = useState([]);
     const [final, setFinal] = useState([])
     const [searchText, setSearchText] = useState('');
+    const [isEdit, setIsEdit] = useState(false);
 
     useEffect(() => {
         setData(realm.objects('Note'));
@@ -23,7 +24,7 @@ const NoteListScreen = (props) => {
             return item
         })
         setFinal(newData)
-        setSearchText('focus');
+        setSearchText('');
     }, []);
 
     const dateFormat = (date) => {
@@ -64,6 +65,34 @@ const NoteListScreen = (props) => {
         setData(newData)
     };
 
+    const removeNotes = () => {
+        const checkTrue = [];
+        data.forEach((item) => {
+            if (item.checkedStatus) {
+                checkTrue.push(item.id)
+            }
+        });
+        if (checkTrue.length !== 0) {
+            realm.write(() => {
+                for (i = 0; i < checkTrue.length; i++) {
+                    const data = realm.objects('Note').
+                        filtered(`id = ${checkTrue[i]}`);
+                    realm.delete(data);
+                }
+            });
+            const collect = realm.objects('Note').
+                sorted('date', true);
+            const newData = collect.map((item) => {
+                item.checkedStatus = false;
+                return item;
+            });
+            setData(newData);
+            setIsEdit(false);
+        } else {
+            alert('Nothing to remove!');
+        }
+    };
+
     return (
 
         <View style={styles.mainContainer}>
@@ -71,6 +100,22 @@ const NoteListScreen = (props) => {
                 <Text style={styles.headerTitle}>
                     Notes
                 </Text>
+                {
+                    data.length !== 0 ?
+                        <TouchableOpacity
+                            style={styles.editButton}
+                            onPress={() => setIsEdit(!isEdit)}
+                        >
+                            {
+                                isEdit ?
+                                    <Text >Cancel</Text>
+                                    :
+                                    <Text >Edit</Text>
+                            }
+                        </TouchableOpacity>
+                        :
+                        null
+                }
             </View>
             <FlatList
                 contentContainerStyle={styles.flatListContainer}
@@ -97,12 +142,17 @@ const NoteListScreen = (props) => {
                                     {dateFormat(item.date)}
                                 </Text>
                             </TouchableOpacity>
-                            <CheckBox
-                                size={20}
-                                containerStyle={styles.checkBox}
-                                onPress={() => setCheckBox(item.id, item.checkedStatus)}
-                                checked={item.checkedStatus}
-                            />
+                            {
+                                isEdit ?
+                                    <CheckBox
+                                        size={20}
+                                        containerStyle={styles.checkBox}
+                                        onPress={() => setCheckBox(item.id, item.checkedStatus)}
+                                        checked={item.checkedStatus}
+                                    />
+                                    :
+                                    null
+                            }
                         </View>
                     )
                 }}
@@ -131,19 +181,40 @@ const NoteListScreen = (props) => {
                     </View>
                 }
             />
-            < View style={styles.buttonContainer} >
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => navigation.navigate('CreateNote')}
-                >
-                    <Icon
-                        name="plus"
-                        type="antdesign"
-                        size={24}
-                        color="white"
-                    />
-                </TouchableOpacity>
-            </View >
+            {
+                isEdit ?
+                    null
+                    :
+                    <View style={styles.buttonContainer} >
+                        <TouchableOpacity
+                            style={styles.addButton}
+                            onPress={() => navigation.navigate('CreateNote')}
+                        >
+                            <Icon
+                                name="plus"
+                                type="antdesign"
+                                size={24}
+                                color="white"
+                            />
+                        </TouchableOpacity>
+                    </View>
+            }
+            {
+                isEdit ?
+                    <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => removeNotes()}
+                    >
+                        <Icon name="delete" type="antdesign" size={20} color="white" />
+                        <View style={styles.containerDeleteText}>
+                            <Text style={styles.deleteText}>
+                                Delete
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    :
+                    null
+            }
         </View >
 
     )
@@ -227,5 +298,23 @@ const styles = StyleSheet.create({
     checkBox: {
         paddingRight: 0,
         paddingLeft: 0
+    },
+    editButton: {
+        position: 'absolute',
+        padding: 16,
+        right: 8
+    },
+    deleteButton: {
+        backgroundColor: 'red',
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    containerDeleteText: {
+        marginLeft: 8
+    },
+    deleteText: {
+        color: 'white'
     }
 });
